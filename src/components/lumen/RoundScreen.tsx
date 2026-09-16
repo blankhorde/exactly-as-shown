@@ -20,7 +20,7 @@ export function RoundScreen() {
   const [solvedCount, setSolvedCount] = useState(0);
   const [results, setResults] = useState<Array<"solved" | "stuck">>([]);
 
-  const grid = GRIDS[index];
+  const grid = GRIDS[index] ?? GRIDS[0];
   if (!grid) return null;
   const state = useMemo(() => analyse(grid, marks), [grid, marks]);
 

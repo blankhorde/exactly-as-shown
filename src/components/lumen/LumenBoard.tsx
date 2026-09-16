@@ -19,6 +19,8 @@ type LampRun = {
   conflict: boolean;
 };
 
+type ConflictRun = { x: number; y: number; width: number; height: number; radius: number };
+
 function bounds(grid: Grid, r: number, c: number) {
   let left = c;
   let right = c;
@@ -46,6 +48,36 @@ export function LumenBoard({ grid, marks, width, onCell, locked }: Props) {
       }),
     [grid, marks, state.conflicts],
   );
+  const conflictRuns = useMemo<ConflictRun[]>(() => {
+    const runs: ConflictRun[] = [];
+    for (let i = 0; i < lamps.length; i++) {
+      const first = lamps[i];
+      if (!first) continue;
+      for (let j = i + 1; j < lamps.length; j++) {
+        const second = lamps[j];
+        if (!second) continue;
+        if (first.r === second.r && first.left <= second.c && first.right >= second.c) {
+          runs.push({
+            x: Math.min(first.c, second.c) * cell + cell / 2,
+            y: first.r * cell + cell * 0.32,
+            width: Math.abs(first.c - second.c) * cell,
+            height: cell * 0.36,
+            radius: cell * 0.18,
+          });
+        }
+        if (first.c === second.c && first.top <= second.r && first.bottom >= second.r) {
+          runs.push({
+            x: first.c * cell + cell * 0.32,
+            y: Math.min(first.r, second.r) * cell + cell / 2,
+            width: cell * 0.36,
+            height: Math.abs(first.r - second.r) * cell,
+            radius: cell * 0.18,
+          });
+        }
+      }
+    }
+    return runs;
+  }, [cell, lamps]);
   const lightKey = lamps.map(({ r, c }) => `${r}-${c}`).join("_");
 
   return (
@@ -100,16 +132,7 @@ export function LumenBoard({ grid, marks, width, onCell, locked }: Props) {
             })}
           </g>
           <g className="lm-conflict-light">
-            {lamps.filter((lamp) => lamp.conflict).map((lamp) => {
-              const x = lamp.c * cell + cell / 2;
-              const y = lamp.r * cell + cell / 2;
-              return (
-                <g key={`conflict-${lamp.r}-${lamp.c}`}>
-                  <rect x={lamp.left * cell} y={y - cell * 0.18} width={(lamp.right - lamp.left + 1) * cell} height={cell * 0.36} rx={cell * 0.18} />
-                  <rect x={x - cell * 0.18} y={lamp.top * cell} width={cell * 0.36} height={(lamp.bottom - lamp.top + 1) * cell} rx={cell * 0.18} />
-                </g>
-              );
-            })}
+            {conflictRuns.map((run, i) => <rect key={i} x={run.x} y={run.y} width={run.width} height={run.height} rx={run.radius} />)}
           </g>
         </g>
       </svg>
