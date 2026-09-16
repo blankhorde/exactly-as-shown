@@ -1,54 +1,158 @@
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 import { analyse, cellAt, isWall, key, type Grid, type Marks } from "@/lib/lumen/engine";
-import type { LumenTheme } from "./themes";
 
-type Props = { grid: Grid; marks: Marks; theme: LumenTheme; width: number; onCell: (r: number, c: number) => void; locked?: boolean };
+type Props = {
+  grid: Grid;
+  marks: Marks;
+  width: number;
+  onCell: (r: number, c: number) => void;
+  locked?: boolean;
+};
 
-function seesBulb(grid: Grid, marks: Marks, r: number, c: number, dr: number, dc: number) {
-  let rr = r + dr;
-  let cc = c + dc;
-  while (rr >= 0 && rr < grid.size && cc >= 0 && cc < grid.size && !isWall(grid, rr, cc)) {
-    if (marks[key(rr, cc)] === "bulb") return true;
-    rr += dr;
-    cc += dc;
-  }
-  return false;
+type LampRun = {
+  r: number;
+  c: number;
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  conflict: boolean;
+};
+
+function bounds(grid: Grid, r: number, c: number) {
+  let left = c;
+  let right = c;
+  let top = r;
+  let bottom = r;
+  while (left > 0 && !isWall(grid, r, left - 1)) left--;
+  while (right < grid.size - 1 && !isWall(grid, r, right + 1)) right++;
+  while (top > 0 && !isWall(grid, top - 1, c)) top--;
+  while (bottom < grid.size - 1 && !isWall(grid, bottom + 1, c)) bottom++;
+  return { left, right, top, bottom };
 }
 
-function Lamp({ alert }: { alert: boolean }) {
-  return <span className={`lm-lamp ${alert ? "lm-lamp-conflict" : ""}`} aria-hidden="true"><span className="lm-lamp-glass" /><span className="lm-lamp-neck" /><span className="lm-lamp-base" /></span>;
-}
-
-export function LumenBoard({ grid, marks, theme, width, onCell, locked }: Props) {
+export function LumenBoard({ grid, marks, width, onCell, locked }: Props) {
   const state = useMemo(() => analyse(grid, marks), [grid, marks]);
-  const gap = 3;
-  const pad = 9;
-  const cell = Math.floor((width - pad * 2 - gap * (grid.size - 1)) / grid.size);
-  const boardSize = cell * grid.size + gap * (grid.size - 1) + pad * 2;
+  const maskId = `floor-${useId().replaceAll(":", "")}`;
+  const blurId = `light-${useId().replaceAll(":", "")}`;
+  const cell = width / grid.size;
+  const lamps = useMemo<LampRun[]>(
+    () =>
+      Object.entries(marks).flatMap(([position, mark]) => {
+        if (mark !== "bulb") return [];
+        const [rValue, cValue] = position.split(",").map(Number);
+        if (rValue === undefined || cValue === undefined || isWall(grid, rValue, cValue)) return [];
+        return [{ r: rValue, c: cValue, ...bounds(grid, rValue, cValue), conflict: state.conflicts.has(position) }];
+      }),
+    [grid, marks, state.conflicts],
+  );
+  const lightKey = lamps.map(({ r, c }) => `${r}-${c}`).join("_");
 
-  return <div className="lm-board mx-auto select-none" style={{ width: boardSize, padding: pad }} data-room={theme.room}>
-    <div className="grid" style={{ gridTemplateColumns: `repeat(${grid.size}, ${cell}px)`, gap }}>
-      {Array.from({ length: grid.size * grid.size }).map((_, i) => {
-        const r = Math.floor(i / grid.size);
-        const c = i % grid.size;
-        const k = key(r, c);
-        const clue = cellAt(grid, r, c);
-        const mark = marks[k];
-        const lit = state.lit.has(k);
-        const conflict = state.conflicts.has(k);
-        if (clue !== null) {
-          const wall = state.walls.find((item) => item.r === r && item.c === c);
-          return <div key={k} aria-label={clue >= 0 ? `wall, ${clue} bulbs touch it` : "wall"} className={`lm-wall lm-wall-${wall?.status ?? "under"}`} style={{ height: cell }}>{clue >= 0 ? clue : ""}</div>;
-        }
-        const horizontal = mark === "bulb" || seesBulb(grid, marks, r, c, 0, -1) || seesBulb(grid, marks, r, c, 0, 1);
-        const vertical = mark === "bulb" || seesBulb(grid, marks, r, c, -1, 0) || seesBulb(grid, marks, r, c, 1, 0);
-        return <button key={k} type="button" disabled={locked} onClick={() => onCell(r, c)} aria-label={`row ${r + 1} column ${c + 1}, ${mark === "bulb" ? "bulb" : mark === "note" ? "marked empty" : lit ? "lit" : "dark"}`} className={`lm-cell ${lit ? "lm-cell-lit" : "lm-cell-dark"} ${conflict ? "lm-cell-conflict" : ""}`} style={{ height: cell }}>
-          {lit && horizontal && <span className="lm-beam lm-beam-horizontal" aria-hidden="true" />}
-          {lit && vertical && <span className="lm-beam lm-beam-vertical" aria-hidden="true" />}
-          {mark === "bulb" && <Lamp alert={conflict} />}
-          {mark === "note" && <span className="lm-note" aria-hidden="true" />}
-        </button>;
-      })}
+  return (
+    <div className={`lm-board ${state.solved ? "lm-board-solved" : ""}`} style={{ width, height: width }}>
+      <svg
+        key={lightKey}
+        className="lm-light-field"
+        viewBox={`0 0 ${width} ${width}`}
+        aria-hidden="true"
+      >
+        <defs>
+          <mask id={maskId} maskUnits="userSpaceOnUse">
+            <rect width={width} height={width} fill="black" />
+            {grid.cells.flatMap((row, r) =>
+              row.map((value, c) =>
+                value === null ? (
+                  <rect key={`${r}-${c}`} x={c * cell} y={r * cell} width={cell + 0.25} height={cell + 0.25} fill="white" />
+                ) : null,
+              ),
+            )}
+          </mask>
+          <filter id={blurId} x="-15%" y="-15%" width="130%" height="130%">
+            <feGaussianBlur stdDeviation={cell * 0.18} />
+          </filter>
+        </defs>
+        <g mask={`url(#${maskId})`} className="lm-light-arrival">
+          <g filter={`url(#${blurId})`} className="lm-light-warm">
+            {lamps.map((lamp) => {
+              const x = lamp.c * cell + cell / 2;
+              const y = lamp.r * cell + cell / 2;
+              return (
+                <g key={`${lamp.r}-${lamp.c}`}>
+                  <rect
+                    className="lm-light-run lm-light-run-x"
+                    x={lamp.left * cell}
+                    y={y - cell * 0.42}
+                    width={(lamp.right - lamp.left + 1) * cell}
+                    height={cell * 0.84}
+                    rx={cell * 0.42}
+                  />
+                  <rect
+                    className="lm-light-run lm-light-run-y"
+                    x={x - cell * 0.42}
+                    y={lamp.top * cell}
+                    width={cell * 0.84}
+                    height={(lamp.bottom - lamp.top + 1) * cell}
+                    rx={cell * 0.42}
+                  />
+                  <circle className="lm-light-pool" cx={x} cy={y} r={cell * 0.8} />
+                </g>
+              );
+            })}
+          </g>
+          <g className="lm-conflict-light">
+            {lamps.filter((lamp) => lamp.conflict).map((lamp) => {
+              const x = lamp.c * cell + cell / 2;
+              const y = lamp.r * cell + cell / 2;
+              return (
+                <g key={`conflict-${lamp.r}-${lamp.c}`}>
+                  <rect x={lamp.left * cell} y={y - cell * 0.18} width={(lamp.right - lamp.left + 1) * cell} height={cell * 0.36} rx={cell * 0.18} />
+                  <rect x={x - cell * 0.18} y={lamp.top * cell} width={cell * 0.36} height={(lamp.bottom - lamp.top + 1) * cell} rx={cell * 0.18} />
+                </g>
+              );
+            })}
+          </g>
+        </g>
+      </svg>
+
+      <div className="lm-grid" style={{ gridTemplateColumns: `repeat(${grid.size}, 1fr)` }}>
+        {Array.from({ length: grid.size * grid.size }).map((_, i) => {
+          const r = Math.floor(i / grid.size);
+          const c = i % grid.size;
+          const position = key(r, c);
+          const clue = cellAt(grid, r, c);
+          const mark = marks[position];
+          const conflict = state.conflicts.has(position);
+          if (clue !== null) {
+            const wall = state.walls.find((item) => item.r === r && item.c === c);
+            return (
+              <div
+                key={position}
+                className={`lm-wall lm-wall-${wall?.status ?? "under"}`}
+                aria-label={clue >= 0 ? `wall, ${clue} bulbs touch it` : "wall"}
+              >
+                {clue >= 0 ? clue : ""}
+              </div>
+            );
+          }
+          return (
+            <button
+              key={position}
+              type="button"
+              disabled={locked}
+              onClick={() => onCell(r, c)}
+              className="lm-floor-cell"
+              aria-label={`row ${r + 1} column ${c + 1}, ${mark === "bulb" ? "bulb" : mark === "note" ? "marked empty" : state.lit.has(position) ? "lit" : "dark"}`}
+            >
+              {mark === "bulb" && (
+                <span className={`lm-orb ${conflict ? "lm-orb-conflict" : ""}`} aria-hidden="true">
+                  <span />
+                </span>
+              )}
+              {mark === "note" && <span className="lm-note" aria-hidden="true" />}
+            </button>
+          );
+        })}
+      </div>
     </div>
-  </div>;
+  );
 }
