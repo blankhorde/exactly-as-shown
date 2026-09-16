@@ -10,33 +10,63 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlueprintRouteImport } from './routes/blueprint'
+import { Route as KilnRouteImport } from './routes/kiln'
+import { Route as LanternRouteImport } from './routes/lantern'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlueprintRoute = BlueprintRouteImport.update({
+  id: '/blueprint',
+  path: '/blueprint',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KilnRoute = KilnRouteImport.update({
+  id: '/kiln',
+  path: '/kiln',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LanternRoute = LanternRouteImport.update({
+  id: '/lantern',
+  path: '/lantern',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/blueprint': typeof BlueprintRoute
+  '/kiln': typeof KilnRoute
+  '/lantern': typeof LanternRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/blueprint': typeof BlueprintRoute
+  '/kiln': typeof KilnRoute
+  '/lantern': typeof LanternRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/blueprint': typeof BlueprintRoute
+  '/kiln': typeof KilnRoute
+  '/lantern': typeof LanternRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/blueprint' | '/kiln' | '/lantern'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/blueprint' | '/kiln' | '/lantern'
+  id: '__root__' | '/' | '/blueprint' | '/kiln' | '/lantern'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BlueprintRoute: typeof BlueprintRoute
+  KilnRoute: typeof KilnRoute
+  LanternRoute: typeof LanternRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +78,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blueprint': {
+      id: '/blueprint'
+      path: '/blueprint'
+      fullPath: '/blueprint'
+      preLoaderRoute: typeof BlueprintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kiln': {
+      id: '/kiln'
+      path: '/kiln'
+      fullPath: '/kiln'
+      preLoaderRoute: typeof KilnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lantern': {
+      id: '/lantern'
+      path: '/lantern'
+      fullPath: '/lantern'
+      preLoaderRoute: typeof LanternRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BlueprintRoute: BlueprintRoute,
+  KilnRoute: KilnRoute,
+  LanternRoute: LanternRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
