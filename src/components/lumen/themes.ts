@@ -1,5 +1,6 @@
 export type LumenTheme = {
   id: string;
+  path: "/lantern" | "/blueprint" | "/kiln";
   name: string;
   world: string;
   blurb: string;
@@ -14,6 +15,7 @@ export type LumenTheme = {
 export const THEMES: LumenTheme[] = [
   {
     id: "lantern",
+    path: "/lantern",
     name: "Lantern",
     world: "A dark hall you light one lamp at a time",
     blurb: "Walnut night, brass plaques, warm amber spill. Quiet and heavy.",
@@ -45,6 +47,7 @@ export const THEMES: LumenTheme[] = [
   },
   {
     id: "blueprint",
+    path: "/blueprint",
     name: "Blueprint",
     world: "A drafting table where light is measured, not felt",
     blurb: "Cold paper, ink-navy blocks, hairline beams down every axis.",
@@ -76,6 +79,7 @@ export const THEMES: LumenTheme[] = [
   },
   {
     id: "kiln",
+    path: "/kiln",
     name: "Kiln",
     world: "Clay tiles in the sun, basalt blocks holding the shade",
     blurb: "Chunky earth tiles, black stone clues, hard white daylight.",
