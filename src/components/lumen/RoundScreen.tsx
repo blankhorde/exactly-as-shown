@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { HelpCircle, RotateCcw, Undo2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { analyse, cycle, GRIDS, key, type Marks } from "@/lib/lumen/engine";
@@ -22,7 +22,7 @@ export function RoundScreen() {
 
   const grid = GRIDS[index] ?? GRIDS[0];
   if (!grid) return null;
-  const state = useMemo(() => analyse(grid, marks), [grid, marks]);
+  const state = analyse(grid, marks);
 
   const placeCell = (r: number, c: number) => {
     const position = key(r, c);
