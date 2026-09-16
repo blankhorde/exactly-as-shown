@@ -5,13 +5,14 @@ import { analyse, cycle, GRIDS, key, type Marks } from "@/lib/lumen/engine";
 import { LumenBoard } from "./LumenBoard";
 import type { LumenTheme } from "./themes";
 
-const BOARD_WIDTH = 342; // fits 390px screen with 24px page padding; shrinks below
+const BOARD_WIDTH = 320;
+const MID_ROUND_MARKS: Marks = { "1,0": "bulb", "2,4": "bulb", "4,2": "bulb", "5,5": "note" };
 
 type Sheet = null | "solved" | "stuck";
 
 export function RoundScreen({ theme }: { theme: LumenTheme }) {
   const [index, setIndex] = useState(0);
-  const [marks, setMarks] = useState<Marks>({});
+  const [marks, setMarks] = useState<Marks>(MID_ROUND_MARKS);
   const [history, setHistory] = useState<Marks[]>([]);
   const [sheet, setSheet] = useState<Sheet>(null);
   const [stuckCount, setStuckCount] = useState(0);
@@ -76,20 +77,20 @@ export function RoundScreen({ theme }: { theme: LumenTheme }) {
 
   return (
     <div
-      className="min-h-screen w-full"
+      className={`lm-room lm-room-${theme.room} min-h-screen w-full`}
       style={{ ...(theme.vars as React.CSSProperties), background: "var(--lm-ground)" }}
     >
-      <div className="mx-auto w-full max-w-[390px] px-4 pb-16 pt-3">
+      <div className={`lm-screen lm-screen-${theme.room} mx-auto w-full max-w-[390px] px-4 pb-16 pt-3`}>
         {/* Platform header — shown greyed as context, not part of this design */}
         <div
-          className="mb-3 flex items-center justify-between rounded-xl px-2 py-2"
+          className="mb-3 flex items-center justify-between px-2 py-2"
           style={{ color: "var(--lm-ink-soft)" }}
         >
           <Link to="/" aria-label="Back">
             <ArrowLeft size={20} />
           </Link>
           <span
-            className="text-[15px] tracking-wide"
+            className="text-[18px]"
             style={{ color: "var(--lm-ink)", fontFamily: theme.displayFont }}
           >
             Lumen
@@ -99,7 +100,7 @@ export function RoundScreen({ theme }: { theme: LumenTheme }) {
 
         {/* HUD card — structure is the platform's, palette is this board's */}
         <div
-          className="mb-4 rounded-2xl p-3"
+          className="lm-hud mb-4 p-3"
           style={{ background: "var(--lm-panel-2)", border: "1px solid var(--lm-frame)" }}
         >
           <div className="flex gap-1">
@@ -186,7 +187,7 @@ export function RoundScreen({ theme }: { theme: LumenTheme }) {
       {sheet && (
         <div className="fixed inset-0 z-20 flex items-end justify-center bg-black/55 px-3 pb-3">
           <div
-            className="w-full max-w-[382px] rounded-2xl p-5"
+            className="w-full max-w-[382px] rounded-lg p-5"
             style={{ background: "var(--lm-panel)", border: "1px solid var(--lm-frame)" }}
           >
             <h2
@@ -255,12 +256,12 @@ function ControlButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-[13px] transition-opacity disabled:opacity-40"
+      className="flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2.5 text-[13px] transition-opacity disabled:opacity-40"
       style={{
         background: "var(--lm-chip)",
         color: "var(--lm-ink)",
         border: "1px solid var(--lm-frame)",
-        borderRadius: theme.cellShape === "square" ? 4 : 12,
+        borderRadius: 5,
       }}
     >
       {children}
@@ -288,7 +289,7 @@ function SheetButton({
         background: primary ? "var(--lm-accent)" : "transparent",
         color: primary ? "var(--lm-light-ink)" : "var(--lm-ink)",
         border: primary ? "none" : "1px solid var(--lm-frame)",
-        borderRadius: theme.cellShape === "square" ? 4 : 12,
+        borderRadius: 5,
       }}
     >
       {children}

@@ -39,4 +39,8 @@ export const THEMES: LumenTheme[] = [
   { id: "panel", path: "/kiln", name: "Panel", world: "A light instrument set into the wall", blurb: "Compact fittings and jointed plaster hold the board in place.", displayFont: "'Instrument Serif', serif", room: "panel", vars: roomPalette },
 ];
 
-export const themeById = (id: string) => THEMES.find((theme) => theme.id === id) ?? THEMES[0];
+export const themeById = (id: string): LumenTheme => {
+  const theme = THEMES.find((item) => item.id === id) ?? THEMES[0];
+  if (!theme) throw new Error("Lumen theme missing");
+  return theme;
+};

@@ -5,20 +5,20 @@ import { themeById } from "@/components/lumen/themes";
 export const Route = createFileRoute("/blueprint")({
   head: () => ({
     meta: [
-      { title: "Lumen — Blueprint direction | Kweza" },
+      { title: "Lumen — Workbench | Kweza" },
       {
         name: "description",
         content:
-          "Lumen board direction two: a cold drafting table where ink-navy blocks number the light and hairline beams run every axis.",
+          "Lumen Workbench: a physical brass board on a dark tiled surface, lit by the player's lamps.",
       },
-      { property: "og:title", content: "Lumen — Blueprint direction" },
+      { property: "og:title", content: "Lumen — Workbench" },
       {
         property: "og:description",
-        content: "Cold paper, ink-navy blocks, measured beams: Lumen's grid as a drafting exercise in light.",
+          "A Lumen board on a broad work surface, where warm beams expose every solved path.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: () => <RoundScreen theme={themeById("blueprint")} />,
+  component: () => <RoundScreen theme={themeById("workbench")} />,
 });
