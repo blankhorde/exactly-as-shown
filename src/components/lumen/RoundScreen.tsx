@@ -6,7 +6,7 @@ import { LumenBoard } from "./LumenBoard";
 import type { LumenTheme } from "./themes";
 
 const BOARD_WIDTH = 320;
-const MID_ROUND_MARKS: Marks = { "1,0": "bulb", "2,4": "bulb", "4,2": "bulb", "5,5": "note" };
+const MID_ROUND_MARKS: Marks = { "1,0": "bulb", "3,0": "bulb", "2,4": "bulb", "4,2": "bulb", "5,5": "note" };
 
 type Sheet = null | "solved" | "stuck";
 
@@ -168,13 +168,13 @@ export function RoundScreen({ theme }: { theme: LumenTheme }) {
 
         {/* In-board controls */}
         <div className="mt-4 flex items-center justify-center gap-2">
-          <ControlButton onClick={undo} disabled={history.length === 0} theme={theme}>
+          <ControlButton onClick={undo} disabled={history.length === 0}>
             <Undo2 size={16} /> Undo
           </ControlButton>
-          <ControlButton onClick={reset} disabled={Object.keys(marks).length === 0} theme={theme}>
+          <ControlButton onClick={reset} disabled={Object.keys(marks).length === 0}>
             <RotateCcw size={16} /> Clear grid
           </ControlButton>
-          <ControlButton onClick={giveUp} theme={theme}>
+          <ControlButton onClick={giveUp}>
             <X size={16} /> Stuck
           </ControlButton>
         </div>
@@ -244,12 +244,10 @@ function ControlButton({
   children,
   onClick,
   disabled,
-  theme,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
-  theme: LumenTheme;
 }) {
   return (
     <button

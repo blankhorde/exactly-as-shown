@@ -14,7 +14,7 @@ export const Route = createFileRoute("/blueprint")({
       { property: "og:title", content: "Lumen — Workbench" },
       {
         property: "og:description",
-          "A Lumen board on a broad work surface, where warm beams expose every solved path.",
+        content: "A Lumen board on a broad work surface, where warm beams expose every solved path.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

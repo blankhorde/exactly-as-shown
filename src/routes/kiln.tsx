@@ -14,7 +14,7 @@ export const Route = createFileRoute("/kiln")({
       { property: "og:title", content: "Lumen — Panel" },
       {
         property: "og:description",
-          "A compact Lumen board set into dark plaster, with physical lamps and visible light paths.",
+        content: "A compact Lumen board set into dark plaster, with physical lamps and visible light paths.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -14,7 +14,7 @@ export const Route = createFileRoute("/lantern")({
       { property: "og:title", content: "Lumen — Chamber" },
       {
         property: "og:description",
-          "A centered Lumen board over quiet charcoal floorboards, with every beam made visible.",
+        content: "A centered Lumen board over quiet charcoal floorboards, with every beam made visible.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
