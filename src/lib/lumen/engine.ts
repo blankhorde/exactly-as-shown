@@ -10,7 +10,13 @@ export const key = (r: number, c: number) => `${r},${c}`;
 
 export type Marks = Record<string, Mark>;
 
-export type WallState = { r: number; c: number; clue: number; placed: number; status: "under" | "exact" | "over" };
+export type WallState = {
+  r: number;
+  c: number;
+  clue: number;
+  placed: number;
+  status: "under" | "exact" | "over";
+};
 
 export type Analysis = {
   lit: Set<string>;
@@ -22,15 +28,26 @@ export type Analysis = {
   solved: boolean;
 };
 
-const DIRS = [
+const DIRS: ReadonlyArray<readonly [number, number]> = [
   [1, 0],
   [-1, 0],
   [0, 1],
   [0, -1],
 ];
 
+export function cellAt(grid: Grid, r: number, c: number): Cell {
+  const row = grid.cells[r];
+  if (!row) return null;
+  const v = row[c];
+  return v === undefined ? null : v;
+}
+
 export function isWall(grid: Grid, r: number, c: number) {
-  return grid.cells[r][c] !== null;
+  return cellAt(grid, r, c) !== null;
+}
+
+function inside(grid: Grid, r: number, c: number) {
+  return r >= 0 && r < grid.size && c >= 0 && c < grid.size;
 }
 
 function raysFrom(grid: Grid, r: number, c: number) {
@@ -38,7 +55,7 @@ function raysFrom(grid: Grid, r: number, c: number) {
   for (const [dr, dc] of DIRS) {
     let rr = r + dr;
     let cc = c + dc;
-    while (rr >= 0 && rr < grid.size && cc >= 0 && cc < grid.size && !isWall(grid, rr, cc)) {
+    while (inside(grid, rr, cc) && !isWall(grid, rr, cc)) {
       out.push([rr, cc]);
       rr += dr;
       cc += dc;
@@ -77,16 +94,22 @@ export function analyse(grid: Grid, marks: Marks): Analysis {
   const walls: WallState[] = [];
   for (let r = 0; r < n; r++) {
     for (let c = 0; c < n; c++) {
-      const clue = grid.cells[r][c];
+      const clue = cellAt(grid, r, c);
       if (clue === null || clue < 0) continue;
       let placed = 0;
       for (const [dr, dc] of DIRS) {
         const rr = r + dr;
         const cc = c + dc;
-        if (rr < 0 || rr >= n || cc < 0 || cc >= n) continue;
+        if (!inside(grid, rr, cc)) continue;
         if (bulbSet.has(key(rr, cc))) placed++;
       }
-      walls.push({ r, c, clue, placed, status: placed === clue ? "exact" : placed > clue ? "over" : "under" });
+      walls.push({
+        r,
+        c,
+        clue,
+        placed,
+        status: placed === clue ? "exact" : placed > clue ? "over" : "under",
+      });
     }
   }
 
@@ -97,7 +120,8 @@ export function analyse(grid: Grid, marks: Marks): Analysis {
     }
   }
 
-  const solved = darkCells === 0 && conflicts.size === 0 && walls.every((w) => w.status === "exact");
+  const solved =
+    darkCells === 0 && conflicts.size === 0 && walls.every((w) => w.status === "exact");
 
   return { lit, conflicts, beams, walls, bulbs: bulbKeys.length, darkCells, solved };
 }
