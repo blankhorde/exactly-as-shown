@@ -63,23 +63,23 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --background: oklch(0.13 0.012 70);
+  --foreground: oklch(0.94 0.025 80);
+  --card: oklch(0.175 0.014 70);
+  --card-foreground: oklch(0.94 0.025 80);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.82 0.13 85);
+  --primary-foreground: oklch(0.16 0.02 70);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
+  --muted-foreground: oklch(0.72 0.025 75);
   --accent: oklch(0.968 0.007 247.896);
   --accent-foreground: oklch(0.208 0.042 265.755);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
+  --border: oklch(0.31 0.035 72);
   --input: oklch(0.929 0.013 255.508);
   --ring: oklch(0.704 0.04 256.788);
   --chart-1: oklch(0.646 0.222 41.116);
@@ -147,3 +147,77 @@
       sans-serif;
   }
 }
+
+@keyframes lumen-on {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
+}
+
+.lm-room {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.lm-room::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+
+.lm-room-chamber::before {
+  background-image: repeating-linear-gradient(90deg, transparent 0 42px, oklch(0.3 0.018 70 / 0.2) 42px 43px, transparent 43px 86px, oklch(0.07 0.008 70 / 0.55) 86px 88px);
+}
+
+.lm-room-workbench::before {
+  background-image: linear-gradient(oklch(0.31 0.018 70 / 0.2) 1px, transparent 1px), linear-gradient(90deg, oklch(0.31 0.018 70 / 0.2) 1px, transparent 1px);
+  background-size: 96px 96px;
+  transform: perspective(600px) rotateX(4deg) scale(1.08);
+}
+
+.lm-room-panel::before {
+  background-image: linear-gradient(oklch(0.28 0.012 75 / 0.15) 1px, transparent 1px), linear-gradient(90deg, oklch(0.28 0.012 75 / 0.15) 1px, transparent 1px);
+  background-size: 100% 74px, 130px 100%;
+}
+
+.lm-screen { position: relative; }
+.lm-screen-workbench { border-inline: 1px solid oklch(0.26 0.02 70 / 0.45); }
+.lm-screen-panel { background: oklch(0.17 0.012 70 / 0.58); box-shadow: inset 1px 0 oklch(0.3 0.025 75 / 0.35), inset -1px 0 oklch(0.07 0.01 70 / 0.6); }
+.lm-hud { border-radius: 6px; box-shadow: inset 0 1px oklch(0.5 0.04 75 / 0.18), 0 8px 18px oklch(0.05 0.01 70 / 0.32); }
+
+.lm-board {
+  position: relative;
+  border: 1px solid var(--lm-frame);
+  border-radius: 7px;
+  background: var(--lm-panel);
+  box-shadow: inset 0 1px oklch(0.52 0.055 75 / 0.28), inset 0 -5px oklch(0.07 0.01 70 / 0.75), 0 14px 28px oklch(0.04 0.008 70 / 0.58);
+}
+
+.lm-board[data-room="workbench"] { transform: perspective(800px) rotateX(1.2deg); box-shadow: inset 0 1px oklch(0.52 0.055 75 / 0.28), inset 0 -5px oklch(0.07 0.01 70 / 0.75), 0 18px 0 -11px oklch(0.28 0.03 72), 0 26px 34px oklch(0.04 0.008 70 / 0.72); }
+.lm-board[data-room="panel"] { border-width: 2px; box-shadow: inset 0 1px oklch(0.55 0.06 75 / 0.24), inset 0 -5px oklch(0.07 0.01 70 / 0.8), 0 0 0 5px oklch(0.16 0.015 70), 0 10px 25px oklch(0.04 0.008 70 / 0.58); }
+
+.lm-cell, .lm-wall { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; overflow: hidden; border-radius: 3px; }
+.lm-cell { border: 1px solid var(--lm-line); transition: background-color 160ms ease, border-color 160ms ease; box-shadow: inset 0 3px 5px oklch(0.035 0.008 70 / 0.76), inset 0 -1px oklch(0.34 0.025 72 / 0.28); }
+.lm-cell-dark { background: var(--lm-open); }
+.lm-cell-lit { background: var(--lm-lit); border-color: oklch(0.76 0.1 82); animation: lumen-on 180ms ease-out; box-shadow: inset 0 1px oklch(0.92 0.12 90 / 0.42), inset 0 -4px oklch(0.29 0.06 72 / 0.35); }
+.lm-cell-conflict { background: var(--lm-alert); border-color: var(--lm-alert-hot); }
+
+.lm-wall { z-index: 3; color: var(--lm-wall-ink); background: linear-gradient(145deg, var(--lm-wall-top), var(--lm-wall) 58%); border: 1px solid oklch(0.54 0.075 78); font-family: "Instrument Serif", serif; font-size: 22px; line-height: 1; text-shadow: 0 1px oklch(0.08 0.01 70); box-shadow: inset 0 2px oklch(0.65 0.075 80 / 0.3), inset 0 -4px oklch(0.11 0.02 70 / 0.72), 0 3px 4px oklch(0.04 0.008 70 / 0.72); }
+.lm-wall-exact { color: var(--lm-light); border-color: var(--lm-accent); }
+.lm-wall-over { color: var(--lm-alert-hot); border-color: var(--lm-alert); }
+
+.lm-beam { position: absolute; z-index: 1; pointer-events: none; background: color-mix(in oklab, var(--lm-light) 46%, transparent); box-shadow: 0 0 7px color-mix(in oklab, var(--lm-light) 58%, transparent); }
+.lm-beam-horizontal { left: -3px; right: -3px; top: 50%; height: 20%; transform: translateY(-50%); }
+.lm-beam-vertical { top: -3px; bottom: -3px; left: 50%; width: 20%; transform: translateX(-50%); }
+
+.lm-lamp { position: relative; z-index: 2; display: flex; width: 62%; height: 70%; flex-direction: column; align-items: center; justify-content: center; filter: drop-shadow(0 0 5px var(--lm-light)); }
+.lm-lamp-glass { width: 56%; aspect-ratio: 1; border: 1px solid var(--lm-light-hot); border-radius: 50% 50% 46% 46%; background: var(--lm-light-hot); box-shadow: inset -3px -3px 4px oklch(0.77 0.14 79 / 0.65), 0 0 8px var(--lm-light); }
+.lm-lamp-neck { width: 24%; height: 8%; background: var(--lm-accent); }
+.lm-lamp-base { width: 44%; height: 12%; border-radius: 1px 1px 3px 3px; background: var(--lm-frame); border-top: 1px solid var(--lm-accent); }
+.lm-lamp-conflict { filter: drop-shadow(0 0 6px var(--lm-alert-hot)); }
+.lm-lamp-conflict .lm-lamp-glass { background: var(--lm-alert-hot); border-color: var(--lm-alert-hot); box-shadow: inset -3px -3px 4px var(--lm-alert), 0 0 9px var(--lm-alert-hot); }
+.lm-note { position: relative; z-index: 2; width: 18%; aspect-ratio: 1; border-radius: 50%; background: var(--lm-note); box-shadow: inset 0 1px oklch(0.8 0.02 75 / 0.3); }
+
+@media (prefers-reduced-motion: reduce) { .lm-cell-lit { animation: none; } }
