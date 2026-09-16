@@ -43,7 +43,7 @@ function Index() {
           {THEMES.map((theme) => (
             <Link
               key={theme.id}
-              to={`/${theme.id}`}
+              to={theme.path}
               className="block overflow-hidden rounded-2xl"
               style={{ border: "1px solid #ecd9c6", background: "#ffffff" }}
             >
